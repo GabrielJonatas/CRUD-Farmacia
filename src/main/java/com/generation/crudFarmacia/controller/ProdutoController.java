@@ -19,9 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.generation.crudFarmacia.model.Produto;
-import com.generation.crudFarmacia.repository.CategoriaRepository;
+import com.generation.crudFarmacia.model.ProdutoPromocao;
 import com.generation.crudFarmacia.repository.ProdutoRepository;
 import com.generation.crudFarmacia.service.CategoriaService;
+import com.generation.crudFarmacia.service.ProdutoService;
 
 import jakarta.validation.Valid;
 
@@ -35,6 +36,9 @@ public class ProdutoController {
 	
 	@Autowired
 	private CategoriaService categoriaService;
+	
+	@Autowired
+	private ProdutoService produtoService;
 	
 	@GetMapping
 	public ResponseEntity<List<Produto>> getAll(){
@@ -60,6 +64,13 @@ public class ProdutoController {
 	@GetMapping("/nome/{nome}")
 	public ResponseEntity<List<Produto>> getByNome(@PathVariable String nome) {
 		return ResponseEntity.ok(produtoRepository.findAllByNomeContainingIgnoreCase(nome));
+	}
+	
+	@GetMapping("/promocao/{id}")
+	public ResponseEntity<ProdutoPromocao> getPromocaoItem(@PathVariable Long id) {
+		return produtoService.calcularPromocao(id)
+				.map(produto -> ResponseEntity.ok(produto))
+				.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 	
 	@PutMapping
