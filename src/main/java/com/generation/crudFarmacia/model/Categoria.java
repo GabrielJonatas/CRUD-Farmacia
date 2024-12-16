@@ -68,7 +68,7 @@ public class Categoria {
 		this.descricao = descricao;
 	}
 
-	public boolean isStatus() {
+	public boolean getStatus() {
 		return status;
 	}
 

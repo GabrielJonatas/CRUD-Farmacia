@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.generation.crudFarmacia.model.Produto;
 import com.generation.crudFarmacia.repository.CategoriaRepository;
 import com.generation.crudFarmacia.repository.ProdutoRepository;
+import com.generation.crudFarmacia.service.CategoriaService;
 
 import jakarta.validation.Valid;
 
@@ -33,7 +34,7 @@ public class ProdutoController {
 	private ProdutoRepository produtoRepository;
 	
 	@Autowired
-	private CategoriaRepository categoriaRepository;
+	private CategoriaService categoriaService;
 	
 	@GetMapping
 	public ResponseEntity<List<Produto>> getAll(){
@@ -49,11 +50,11 @@ public class ProdutoController {
 	
 	@PostMapping
 	public ResponseEntity<Produto> post(@Valid @RequestBody Produto produto) {
-		if (categoriaRepository.existsById(produto.getCategoria().getId()))
+		if (categoriaService.checarExistenciaCategoria(produto))
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.body(produtoRepository.save(produto));
 	
-		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria não existe!", null);
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria não existe ou está descontinuada!", null);
 	}
 	
 	@GetMapping("/nome/{nome}")
@@ -65,11 +66,11 @@ public class ProdutoController {
 	public ResponseEntity<Produto> put(@Valid @RequestBody Produto produto) {
 		if (produtoRepository.existsById(produto.getId())) {
 			
-			if (categoriaRepository.existsById(produto.getCategoria().getId()))
+			if (categoriaService.checarExistenciaCategoria(produto))
 					return ResponseEntity.status(HttpStatus.OK)
 							.body(produtoRepository.save(produto));
 			
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria não existe!", null);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria não existe ou está descontinuada!", null);
 		}
 		
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
